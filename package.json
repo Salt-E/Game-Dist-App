@@ -7,21 +7,21 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npm install --legacy-peer-deps"
+    "postinstall": "npm install --legacy-peer-deps"  
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.46.1",
     "@types/swagger-ui-react": "^4.18.3",
     "next": "15.0.3",
     "next-swagger-doc": "^0.4.1",
-    "react": "19.0.0-rc-66855b96-20241106",
-    "react-dom": "19.0.0-rc-66855b96-20241106",
+    "react": "^18.3.1",   
+    "react-dom": "^18.3.1",   
     "swagger-ui-react": "^5.18.2"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^18",   
+    "@types/react-dom": "^18",   
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
     "postcss": "^8",
@@ -29,4 +29,3 @@
     "typescript": "^5"
   }
 }
-
