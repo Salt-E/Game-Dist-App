@@ -20,6 +20,13 @@ export default function AuthPage() {
       }
     });
 
+    const getRedirectUrl = () => {
+      if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'production') {
+        return 'https://game-dist-app.vercel.app/auth';
+      }
+      return 'http://localhost:3000/auth';
+    };
+    
     // Ambil sesi saat komponen dimuat
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
