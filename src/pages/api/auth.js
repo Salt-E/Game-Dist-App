@@ -22,8 +22,9 @@ export default function AuthPage() {
   }, []);
 
   const getRedirectUrl = () => {
-    if (process.env.NEXT_PUBLIC_VERCEL_ENV === 'production') {
-      return 'https://game-dist-app.vercel.app/auth';
+    const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL;
+    if (vercelUrl) {
+      return `https://${vercelUrl}/auth`;
     }
     return 'http://localhost:3000/auth';
   };
