@@ -26,7 +26,7 @@ export default function AuthPage() {
       }
       return 'http://localhost:3000/auth';
     };
-    
+
     // Ambil sesi saat komponen dimuat
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -42,7 +42,7 @@ export default function AuthPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_CLIENT_URL}/auth`,
+        redirectTo: getRedirectUrl(),
       },
     });
     if (error) console.error('Login error:', error.message);
