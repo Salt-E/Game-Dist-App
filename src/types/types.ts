@@ -8,7 +8,7 @@ export interface User {
   export interface Game {
     id: string;
     title: string;
-    description: string;
+    description: string | null;
     price: number;
     owner_id: string;
     genre: string[];

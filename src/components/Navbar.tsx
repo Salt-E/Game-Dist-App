@@ -28,10 +28,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, Library, Users, User } from "lucide-react";
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export function Navbar() {
   const pathname = usePathname();
-  
+  const { user } = useAuth();
   return (
     <nav className="border-b w-full fixed top-0 bg-white">
       <div className="container mx-auto px-4">
@@ -66,6 +67,10 @@ export function Navbar() {
             </Link>
           </div>
 
+          <div className="flex items-center gap-4">
+            <User size={20} />
+            <span>{user?.email}</span>
+          </div>
           <div className="ml-auto">
             <Link 
               href="/auth" 
@@ -73,6 +78,7 @@ export function Navbar() {
             >
               Login
             </Link>
+            
           </div>
         </div>
       </div>
