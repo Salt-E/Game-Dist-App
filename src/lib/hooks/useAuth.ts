@@ -21,7 +21,7 @@ export function useAuth() {
 
         if (session?.user) {
           const { data: userData, error: userError } = await supabase
-            .from('users')
+            .from('auth.users')
             .select('*')
             .eq('id', session.user.id)
             .single();
@@ -49,7 +49,7 @@ export function useAuth() {
       if (session?.user) {
         try {
           const { data: userData, error: userError } = await supabase
-            .from('users')
+            .from('auth.users')
             .select('*')
             .eq('id', session.user.id)
             .single();

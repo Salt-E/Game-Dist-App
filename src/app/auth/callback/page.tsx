@@ -3,58 +3,40 @@
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import type { Database } from '@/lib/database.types';
+import { toast } from 'sonner';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClientComponentClient<Database>();
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        const { searchParams, hash } = new URL(window.location.href);
+        const { searchParams } = new URL(window.location.href);
         const code = searchParams.get('code');
+        const redirectTo = searchParams.get('redirectTo') || '/dashboard';
         
-        // Handle the OAuth callback
-        const { error } = await supabase.auth.exchangeCodeForSession(code || '');
-
-        if (error) {
-          throw error;
+        if (!code) {
+          throw new Error('No code provided');
         }
 
-        // Fetch the user data after successful authentication
+        // Exchange the code for a session
+        const { error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
+        if (sessionError) throw sessionError;
+
+        // Get the authenticated user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
         if (userError) throw userError;
 
         if (user) {
-          // Check if user exists in users table
-          const { data: existingUser, error: dbError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-
-          if (dbError && dbError.code !== 'PGRST116') { // PGRST116 means no rows returned
-            throw dbError;
-          }
-
-          // If user doesn't exist, create new user record
-          if (!existingUser) {
-            const { error: insertError } = await supabase
-              .from('users')
-              .insert({
-                id: user.id,
-                email: user.email,
-                created_at: new Date().toISOString()
-              });
-
-            if (insertError) throw insertError;
-          }
+          toast.success('Successfully signed in!');
         }
 
-        router.push('/dashboard');
+        router.push(redirectTo);
       } catch (error) {
         console.error('Auth callback error:', error);
+        toast.error('Authentication failed. Please try again.');
         router.push('/auth?error=callback_failed');
       }
     };
