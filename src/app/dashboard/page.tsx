@@ -1,52 +1,33 @@
 'use client';
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingCart } from "lucide-react";
-import Link from "next/link";
 
-export interface GameCardProps {
-  id: string;
-  title: string;
-  description: string | null;
-  price: number;
-  genre: string[];
-  owner_id: string;
-  onPurchase: (gameId: string) => Promise<void>;
-}
+import { GameCard } from "@/components/GameCard";  // Import komponen GameCard
+import { useState } from "react";
 
-export function GameCard({ 
-  id, 
-  title, 
-  description, 
-  price, 
-  genre,
-  onPurchase 
-}: GameCardProps) {
+export default function Dashboard() {
+  const [games, setGames] = useState([
+    // array contoh game, sesuaikan dengan data yang Anda miliki
+    { id: '1', title: 'Game 1', description: 'Fun game', price: 10.99, genre: ['Action'], owner_id: 'owner1' },
+    { id: '2', title: 'Game 2', description: 'Adventure game', price: 15.99, genre: ['Adventure'], owner_id: 'owner2' }
+  ]);
+
+  const handlePurchase = async (gameId: string) => {
+    // logika untuk handle purchase
+    console.log('Purchased:', gameId);
+  };
+
   return (
-    <Card className="flex flex-col">
-      <CardHeader>
-        <Link href={`/games/${id}`}>
-          <CardTitle className="text-xl hover:text-primary">{title}</CardTitle>
-        </Link>
-        <CardDescription>
-          {genre.map((g) => (
-            <Badge key={g} variant="secondary" className="mr-2 mb-2">
-              {g}
-            </Badge>
-          ))}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-grow">
-        <p className="text-gray-600">{description || 'No description available'}</p>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <span className="text-lg font-bold">${price}</span>
-        <Button onClick={() => onPurchase(id)}>
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          Add to Cart
-        </Button>
-      </CardFooter>
-    </Card>
+    <div className="grid grid-cols-3 gap-4">
+      {games.map(game => (
+        <GameCard 
+          id={game.id}
+          title={game.title}
+          description={game.description}
+          price={game.price}
+          genre={game.genre}
+          owner_id={game.owner_id}
+          onPurchase={handlePurchase}
+        />
+      ))}
+    </div>
   );
 }

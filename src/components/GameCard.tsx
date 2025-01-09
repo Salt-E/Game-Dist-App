@@ -1,4 +1,3 @@
-// components/GameCard.tsx
 'use client';
 
 import { Badge } from "@/components/ui/badge";
@@ -6,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-
+import { useState, useCallback } from "react";
 
 interface GameCardProps {
   id: string;
@@ -29,9 +27,9 @@ export const GameCard: React.FC<GameCardProps> = ({
 }) => {
   const [isPurchasing, setIsPurchasing] = useState(false);
 
-  const handlePurchase = async () => {
+  // Use useCallback to memoize the handlePurchase function
+  const handlePurchase = useCallback(async () => {
     if (!onPurchase) return;
-    
     try {
       setIsPurchasing(true);
       await onPurchase(id);
@@ -40,7 +38,7 @@ export const GameCard: React.FC<GameCardProps> = ({
     } finally {
       setIsPurchasing(false);
     }
-  };
+  }, [id, onPurchase]);
 
   return (
     <Card className="flex flex-col h-full">
@@ -59,15 +57,16 @@ export const GameCard: React.FC<GameCardProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
-        <p className="text-gray-600 line-clamp-3">{description}</p>
+        <p className="text-gray-600 line-clamp-3">
+          {description || 'No description available'}
+        </p>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <span className="text-lg font-bold">
-          ${price.toFixed(2)}
-        </span>
-        <Button 
+        <span className="text-lg font-bold">${price.toFixed(2)}</span>
+        <Button
           onClick={handlePurchase}
           disabled={isPurchasing || !onPurchase}
+          aria-label={isPurchasing ? 'Processing purchase...' : 'Add to Cart'}
         >
           <ShoppingCart className="mr-2 h-4 w-4" />
           {isPurchasing ? 'Processing...' : 'Add to Cart'}
@@ -75,4 +74,4 @@ export const GameCard: React.FC<GameCardProps> = ({
       </CardFooter>
     </Card>
   );
-}
+};
