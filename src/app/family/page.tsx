@@ -4,12 +4,17 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useFamilyGroup } from '@/lib/hooks/useFamilyGroups';
 import { familyService } from '@/services/familyService';
 import { Button } from '@/components/ui/button';
+import { FamilyMemberCard } from '@/components/FamilyMemberCard';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Users } from 'lucide-react';
 // ... imports lainnya tetap sama
 
 export default function FamilyPage() {
   const { user } = useAuth();
   const { familyGroup, members, loading } = useFamilyGroup(user?.id);
   const [inviteEmail, setInviteEmail] = useState('');
+  
+  
 
   const handleCreateFamily = async (name: string) => {
     try {

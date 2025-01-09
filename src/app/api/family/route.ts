@@ -1,32 +1,35 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// app/api/family/members/route.ts
 export async function POST(req: Request) {
   try {
-    const { name, userId } = await req.json();
-    
-    // Create family group
-    const { data: familyGroup, error: familyError } = await supabase
-      .from('family_groups')
-      .insert({ name, owner_id: userId })
-      .select()
-      .single();
-    
-    if (familyError) throw familyError;
+    const { email, familyGroupId } = await req.json();
 
-    // Add owner as family member
-    const { error: memberError } = await supabase
+    // Get user from auth.users by email
+    const { data: user, error: userError } = await supabase
+      .from('auth.users')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (userError) throw userError;
+
+    // Add member to family group
+    const { data: member, error: memberError } = await supabase
       .from('family_members')
       .insert({
-        user_id: userId,
-        family_group_id: familyGroup.id,
-        role: 'owner'
-      });
+        user_id: user.id,
+        family_group_id: familyGroupId,
+        role: 'member'
+      })
+      .select()
+      .single();
 
     if (memberError) throw memberError;
 
-    return NextResponse.json(familyGroup);
+    return NextResponse.json(member);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create family group' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to add family member' }, { status: 500 });
   }
 }

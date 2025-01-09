@@ -24,6 +24,9 @@ export interface User {
     user_id: string;
     family_group_id: string;
     role: 'owner' | 'member';
+    users: {
+      email: string;
+    };
   }
   
   export interface GamePurchase {

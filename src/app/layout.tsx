@@ -3,6 +3,29 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const supabase = createServerComponentClient({ cookies })
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <Navbar />
+        <main className="container mx-auto px-4 pt-16">{children}</main>
+      </body>
+    </html>
+  );
+}
 
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",
@@ -42,17 +65,3 @@ export const metadata: Metadata = {
   description: "Game distribution platform with family sharing",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        <Navbar />
-        <main className="container mx-auto px-4 pt-16">{children}</main>
-      </body>
-    </html>
-  );
-}
