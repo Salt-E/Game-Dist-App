@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: https://qjjnbuugjwufimnccwxo.supabase.co
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqam5idXVnand1ZmltbmNjd3hvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIwNjU4MDAsImV4cCI6MjA0NzY0MTgwMH0.kExzsTl7buYRwCPnb_j-FShN_7o1d5glZ8-8Us_8hTI
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_SUPABASE_URL: https://qjjnbuugjwufimnccwxo.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqam5idXVnand1ZmltbmNjd3hvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIwNjU4MDAsImV4cCI6MjA0NzY0MTgwMH0.kExzsTl7buYRwCPnb_j-FShN_7o1d5glZ8-8Us_8hTI
+    restart: unless-stopped
