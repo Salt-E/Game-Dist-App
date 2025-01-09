@@ -23,21 +23,17 @@ export function SearchBar({
   // Debounce search to prevent too many API calls
   const debouncedSearch = useCallback(
     debounce((query: string, genre: string) => {
-      if (typeof onSearch === 'function') {
-        onSearch(query, genre);
-      }
+      onSearch(query, genre);
     }, 300),
-    [onSearch]
+    [onSearch] // Added proper dependencies
   );
 
   useEffect(() => {
-    if (typeof onSearch === 'function') {
-      debouncedSearch(searchTerm, selectedGenre);
-    }
+    debouncedSearch(searchTerm, selectedGenre);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [searchTerm, selectedGenre, debouncedSearch, onSearch]);
+  }, [searchTerm, selectedGenre, debouncedSearch]);
 
   return (
     <div className="flex gap-4">

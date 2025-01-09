@@ -8,23 +8,25 @@ import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
+
 interface GameCardProps {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   price: number;
-  genres: string[];
-  onPurchase?: (gameId: string) => Promise<void>;
+  genre: string[];
+  owner_id: string;
+  onPurchase: (gameId: string) => Promise<void>;
 }
 
-export function GameCard({ 
-  id, 
-  title, 
-  description, 
-  price, 
-  genres,
-  onPurchase 
-}: GameCardProps) {
+export const GameCard: React.FC<GameCardProps> = ({
+  id,
+  title,
+  description,
+  price,
+  genre,
+  onPurchase,
+}) => {
   const [isPurchasing, setIsPurchasing] = useState(false);
 
   const handlePurchase = async () => {
@@ -49,7 +51,7 @@ export function GameCard({
           </CardTitle>
         </Link>
         <CardDescription className="flex flex-wrap gap-2">
-          {genres.map((genre) => (
+          {genre.map((genre) => (
             <Badge key={genre} variant="secondary">
               {genre}
             </Badge>

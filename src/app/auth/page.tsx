@@ -7,6 +7,7 @@ export default function AuthPage() {
     // if (vercelUrl) {
     //   return `https://${vercelUrl}/auth`;
     // }
+    console.log("origin:", window.location.origin);
     return `${window.location.origin}/auth/callback`;
   };
 
