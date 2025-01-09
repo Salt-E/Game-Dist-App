@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     }
 
     const { data: user, error: userError } = await supabase
-      .from("users")
+      .from("auth.users")
       .select("*")
       .eq("id", session.user.id)
       .single();
