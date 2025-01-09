@@ -19,6 +19,7 @@ export default function Dashboard() {
     <div className="grid grid-cols-3 gap-4">
       {games.map(game => (
         <GameCard 
+          key= {game.id}
           id={game.id}
           title={game.title}
           description={game.description}
