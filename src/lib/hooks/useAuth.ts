@@ -12,16 +12,18 @@ export function useAuth() {
   const supabase = createClientComponentClient();
 
   useEffect(() => {
-    const initUser = async () => {
+    // Get initial session and set up listener
+    const initAuth = async () => {
       try {
-        // Get current session
+        // First check session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) throw sessionError;
 
         if (session?.user) {
+          // Get full user data if we have a session
           const { data: userData, error: userError } = await supabase
-            .from('auth.users')
+            .from('users')  // Changed from auth.users to users
             .select('*')
             .eq('id', session.user.id)
             .single();
@@ -29,8 +31,6 @@ export function useAuth() {
           if (userError) throw userError;
           
           setUser(userData);
-        } else {
-          setUser(null);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
@@ -40,39 +40,35 @@ export function useAuth() {
       }
     };
 
-    initUser();
-
-    // Set up realtime subscription
+    // Set up auth state change subscription
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setLoading(true);
-      
-      if (session?.user) {
-        try {
-          const { data: userData, error: userError } = await supabase
-            .from('auth.users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session?.user) {
+          try {
+            const { data: userData, error: userError } = await supabase
+              .from('users')
+              .select('*')
+              .eq('id', session.user.id)
+              .single();
 
-          if (userError) throw userError;
-          
-          setUser(userData);
-        } catch (err) {
-          console.error('Auth state change error:', err);
-          setError(err instanceof Error ? err : new Error('Authentication state change error'));
+            if (userError) throw userError;
+            
+            setUser(userData);
+            setLoading(false);
+          } catch (err) {
+            console.error('Error fetching user data:', err);
+          }
         }
-      } else {
+      } else if (event === 'SIGNED_OUT') {
         setUser(null);
-      }
-      
-      setLoading(false);
-      
-      // Handle sign out
-      if (event === 'SIGNED_OUT') {
         router.push('/auth');
       }
     });
 
+    // Initialize
+    initAuth();
+
+    // Cleanup subscription
     return () => {
       subscription.unsubscribe();
     };
@@ -82,6 +78,7 @@ export function useAuth() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
       setUser(null);
       router.push('/auth');
     } catch (err) {

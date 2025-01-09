@@ -1,6 +1,3 @@
-// app/store/page.tsx
-'use client';
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,15 +5,17 @@ import { GameCard } from "@/components/GameCard";
 import { SearchBar } from "@/components/SearchBar";
 import { gameService } from '@/services/gameService';
 import { Game } from '@/types/types';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuthContext } from '@/components/AuthProvider';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function StorePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('all');
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user } = useAuthContext();
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -36,7 +35,6 @@ export default function StorePage() {
 
   const handlePurchase = async (gameId: string) => {
     if (!user) {
-      // Handle not logged in state
       return;
     }
     
@@ -45,6 +43,24 @@ export default function StorePage() {
       // Handle successful purchase
     }
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-foreground mb-4">Sign In Required</h1>
+          <p className="text-muted-foreground mb-6">
+            Please sign in to browse and purchase games
+          </p>
+          <Link href="/auth">
+            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+              Sign In
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,12 +108,6 @@ export default function StorePage() {
             )}
           </div>
         )}
-
-        {/* Special Offers Section */}
-        <div className="mt-12 mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Special Offers</h2>
-          {/* Add special offers content here */}
-        </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuthContext } from '@/components/AuthProvider';
 import { useGames } from '@/lib/hooks/useGames';
 import { LibraryGameCard } from "@/components/LibraryGameCard";
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Loader2, Search, GridIcon, ListIcon } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LibraryPage() {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { games, loading, error, refreshGames } = useGames(user?.id, {
     includeFamily: true
   });
