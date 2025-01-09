@@ -1,35 +1,62 @@
+// app/api/family/route.ts
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
-// app/api/family/members/route.ts
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const { email, familyGroupId } = await req.json();
+    const supabase = createRouteHandlerClient({ cookies });
+    const { name, userId } = await request.json();
+    
+    if (!name || !userId) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
-    // Get user from auth.users by email
-    const { data: user, error: userError } = await supabase
-      .from('auth.users')
-      .select('id')
-      .eq('email', email)
-      .single();
+    const { data: session } = await supabase.auth.getSession();
+    if (!session.session?.user?.id) {
+      return NextResponse.json(
+        { error: "Not authenticated" },
+        { status: 401 }
+      );
+    }
 
-    if (userError) throw userError;
-
-    // Add member to family group
-    const { data: member, error: memberError } = await supabase
-      .from('family_members')
-      .insert({
-        user_id: user.id,
-        family_group_id: familyGroupId,
-        role: 'member'
-      })
+    // Start transaction
+    const { data: familyGroup, error: familyError } = await supabase
+      .from('family_groups')
+      .insert({ name, owner_id: userId })
       .select()
       .single();
+    
+    if (familyError) {
+      throw familyError;
+    }
 
-    if (memberError) throw memberError;
+    const { error: memberError } = await supabase
+      .from('family_members')
+      .insert({
+        user_id: userId,
+        family_group_id: familyGroup.id,
+        role: 'owner'
+      });
 
-    return NextResponse.json(member);
+    if (memberError) {
+      // Rollback family group creation
+      await supabase
+        .from('family_groups')
+        .delete()
+        .eq('id', familyGroup.id);
+      throw memberError;
+    }
+
+    return NextResponse.json(familyGroup);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to add family member' }, { status: 500 });
+    console.error("[Family API Error]:", error);
+    return NextResponse.json(
+      { error: "Failed to create family group" },
+      { status: 500 }
+    );
   }
 }

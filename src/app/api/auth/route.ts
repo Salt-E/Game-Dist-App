@@ -1,13 +1,16 @@
+// app/api/auth/route.ts
 import { NextResponse } from "next/server";
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { supabase } from "@/lib/supabase";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-    if (error) {
-      console.error("Error fetching session:", error);
-      return NextResponse.json({ error: "Failed to fetch session" }, { status: 500 });
+    if (sessionError) {
+      throw sessionError;
     }
 
     if (!session) {
@@ -21,16 +24,19 @@ export async function GET() {
       .single();
 
     if (userError) {
-      console.error("Error fetching user data:", userError);
-      return NextResponse.json({ error: "Failed to fetch user data" }, { status: 500 });
+      throw userError;
     }
 
     return NextResponse.json({ user });
-  } catch (err) {
-    console.error("Unexpected error in GET:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  } catch (error) {
+    console.error("[Auth API Error]:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
+
 
 export async function POST(req: Request) {
   try {

@@ -1,3 +1,4 @@
+// useAuth.ts
 import { useEffect, useState } from 'react';
 import { User } from '@/types/types';
 import { supabase } from '@/lib/supabase';
@@ -5,35 +6,56 @@ import { supabase } from '@/lib/supabase';
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const initUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        setUser(data);
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
+
+        if (session?.user) {
+          const { data, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (userError) throw userError;
+          
+          setUser(data);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Authentication error'));
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
-      if (session?.user) {
-        const { data } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        setUser(data);
-      } else {
-        setUser(null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setLoading(true);
+      try {
+        if (session?.user) {
+          const { data, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (userError) throw userError;
+          
+          setUser(data);
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Authentication state change error'));
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => {
@@ -42,9 +64,14 @@ export function useAuth() {
   }, []);
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setUser(null);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Logout error'));
+    }
   };
 
-  return { user, loading, logout };
+  return { user, loading, error, logout };
 }

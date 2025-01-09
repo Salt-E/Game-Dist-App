@@ -1,3 +1,4 @@
+// useFamilyGroups.ts
 import { useState, useEffect } from 'react';
 import { FamilyGroup, FamilyMember } from '@/types/types';
 import { supabase } from '@/lib/supabase';
@@ -6,17 +7,19 @@ export function useFamilyGroup(userId?: string) {
   const [familyGroup, setFamilyGroup] = useState<FamilyGroup | null>(null);
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
     const fetchFamilyData = async () => {
       try {
-        // Get user's family group
         const { data: memberData, error: memberError } = await supabase
           .from('family_members')
-          .select(
-            `
+          .select(`
             family_group_id,
             role,
             family_groups (
@@ -24,27 +27,18 @@ export function useFamilyGroup(userId?: string) {
               owner_id,
               name
             )
-          `
-          )
+          `)
           .eq('user_id', userId)
-          .single(); // Ensure we get a single record
+          .single();
 
-        if (memberError) {
-          console.error('Error fetching family group:', memberError);
-          setLoading(false);
-          return;
-        }
+        if (memberError) throw memberError;
 
-        // Validate and set family group
         if (memberData?.family_groups) {
-          const group = memberData.family_groups as unknown as FamilyGroup; // Cast data to FamilyGroup
-          setFamilyGroup(group);
+          setFamilyGroup(memberData.family_groups as unknown as FamilyGroup);
 
-          // Get all family members
           const { data: membersData, error: membersError } = await supabase
             .from('family_members')
-            .select(
-              `
+            .select(`
               user_id,
               role,
               family_group_id,
@@ -52,26 +46,16 @@ export function useFamilyGroup(userId?: string) {
                 id,
                 email
               )
-            `
-            )
+            `)
             .eq('family_group_id', memberData.family_group_id);
 
-          if (membersError) {
-            console.error('Error fetching family members:', membersError);
-          } else if (membersData) {
-            // Map data to ensure compatibility with FamilyMember type
-            const formattedMembers: FamilyMember[] = membersData.map((member) => ({
-              user_id: member.user_id,
-              family_group_id: member.family_group_id,
-              role: member.role,
-            }));
-            setMembers(formattedMembers);
-          }
-        }
+          if (membersError) throw membersError;
 
-        setLoading(false);
-      } catch (error) {
-        console.error('Unexpected error:', error);
+          setMembers(membersData as unknown as FamilyMember[]);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to fetch family data'));
+      } finally {
         setLoading(false);
       }
     };
@@ -79,5 +63,32 @@ export function useFamilyGroup(userId?: string) {
     fetchFamilyData();
   }, [userId]);
 
-  return { familyGroup, members, loading };
+  const refreshMembers = async () => {
+    if (!familyGroup) return;
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('family_members')
+        .select(`
+          user_id,
+          role,
+          family_group_id,
+          users (
+            id,
+            email
+          )
+        `)
+        .eq('family_group_id', familyGroup.id);
+
+      if (error) throw error;
+      setMembers(data as unknown as FamilyMember[]);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to refresh members'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { familyGroup, members, loading, error, refreshMembers };
 }

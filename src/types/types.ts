@@ -24,7 +24,9 @@ export interface User {
     user_id: string;
     family_group_id: string;
     role: 'owner' | 'member';
+    created_at: string;
     users: {
+      id:  string;
       email: string;
     };
   }
