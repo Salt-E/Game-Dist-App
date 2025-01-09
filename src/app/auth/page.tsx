@@ -1,12 +1,10 @@
 'use client';
-import { supabase } from "@/lib/supabase";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { Database } from '@/lib/database.types'
 
 export default function AuthPage() {
+  const supabase = createClientComponentClient<Database>() 
   const getRedirectUrl = () => {
-    // const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL;
-    // if (vercelUrl) {
-    //   return `https://${vercelUrl}/auth`;
-    // }
     console.log("origin:", window.location.origin);
     return `${window.location.origin}/auth/callback`;
   };
