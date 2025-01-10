@@ -6,7 +6,7 @@ export default function AuthPage() {
   const supabase = createClientComponentClient<Database>() 
   const getRedirectUrl = () => {
     console.log("origin:", window.location.origin);
-    return `${window.location.origin}/auth/callback`;
+    return `${process.env.NEXT_PUBLIC_SITE_URL || location.origin}/auth/callback`;
   };
 
   const signInWithGoogle = async () => {
