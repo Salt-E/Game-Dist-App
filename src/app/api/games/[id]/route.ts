@@ -3,30 +3,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
-type Props = {
-  params: {
-    id: string
-  }
-}
-
-export async function GET(
-  req: Request,
-  props: Props
-) {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-    if (sessionError) {
-      throw sessionError;
-    }
-
+    if (sessionError) throw sessionError;
     if (!session) {
       return NextResponse.json(
-        { error: "Not authenticated" }, 
+        { error: "Not authenticated" },
         { status: 401 }
       );
     }
+
+    const id = new URL(request.url).pathname.split('/').pop();
 
     // Get game details
     const { data: game, error: gameError } = await supabase
@@ -40,12 +30,10 @@ export async function GET(
         created_at,
         game_purchases(owner_id)
       `)
-      .eq('id', props.params.id)
+      .eq('id', id)
       .single();
 
-    if (gameError) {
-      throw gameError;
-    }
+    if (gameError) throw gameError;
 
     if (!game) {
       return NextResponse.json(
@@ -66,30 +54,29 @@ export async function GET(
 
     if (game.game_purchases && game.game_purchases.length > 0) {
       const ownerIds = game.game_purchases.map(p => p.owner_id);
-      
+
       // Check if user owns the game
       if (ownerIds.includes(session.user.id)) {
         isOwned = true;
         owner = session.user.id;
-      } 
+      }
       // Check if any family member owns the game
       else if (familyMember) {
-        // First get all family members
         const { data: familyMembers } = await supabase
           .from('family_members')
           .select('user_id')
           .eq('family_group_id', familyMember.family_group_id);
-        
-        if (familyMembers && familyMembers.length > 0) {
+
+        if (familyMembers) {
           const familyUserIds = familyMembers.map(member => member.user_id);
-          
+
           const { data: familyOwnership } = await supabase
             .from('game_purchases')
             .select('owner_id')
-            .eq('game_id', props.params.id)
+            .eq('game_id', id)
             .in('owner_id', familyUserIds)
             .single();
-          
+
           if (familyOwnership) {
             isOwned = true;
             owner = familyOwnership.owner_id;
@@ -112,10 +99,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  req: Request,
-  props: Props
-) {
+export async function PATCH(request: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -123,18 +107,19 @@ export async function PATCH(
     if (sessionError) throw sessionError;
     if (!session) {
       return NextResponse.json(
-        { error: "Not authenticated" }, 
+        { error: "Not authenticated" },
         { status: 401 }
       );
     }
 
-    const body = await req.json();
+    const id = new URL(request.url).pathname.split('/').pop();
+    const body = await request.json();
 
     // Update game details
     const { data, error } = await supabase
       .from('games')
       .update(body)
-      .eq('id', props.params.id)
+      .eq('id', id)
       .select()
       .single();
 
@@ -150,10 +135,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  req: Request,
-  props: Props
-) {
+export async function DELETE(request: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -161,16 +143,18 @@ export async function DELETE(
     if (sessionError) throw sessionError;
     if (!session) {
       return NextResponse.json(
-        { error: "Not authenticated" }, 
+        { error: "Not authenticated" },
         { status: 401 }
       );
     }
+
+    const id = new URL(request.url).pathname.split('/').pop();
 
     // Delete game
     const { error } = await supabase
       .from('games')
       .delete()
-      .eq('id', props.params.id);
+      .eq('id', id);
 
     if (error) throw error;
 
