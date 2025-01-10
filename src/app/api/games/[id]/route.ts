@@ -3,9 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
+type Props = {
+  params: {
+    id: string
+  }
+}
+
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
+  props: Props
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -34,7 +40,7 @@ export async function GET(
         created_at,
         game_purchases(owner_id)
       `)
-      .eq('id', params.id)
+      .eq('id', props.params.id)
       .single();
 
     if (gameError) {
@@ -80,7 +86,7 @@ export async function GET(
           const { data: familyOwnership } = await supabase
             .from('game_purchases')
             .select('owner_id')
-            .eq('game_id', params.id)
+            .eq('game_id', props.params.id)
             .in('owner_id', familyUserIds)
             .single();
           
@@ -107,8 +113,8 @@ export async function GET(
 }
 
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
+  props: Props
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -122,13 +128,13 @@ export async function PATCH(
       );
     }
 
-    const body = await request.json();
+    const body = await req.json();
 
     // Update game details
     const { data, error } = await supabase
       .from('games')
       .update(body)
-      .eq('id', params.id)
+      .eq('id', props.params.id)
       .select()
       .single();
 
@@ -145,8 +151,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
+  props: Props
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -164,7 +170,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('games')
       .delete()
-      .eq('id', params.id);
+      .eq('id', props.params.id);
 
     if (error) throw error;
 
