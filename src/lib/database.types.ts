@@ -8,7 +8,28 @@ export type Json =
   | Json[]
 
 export interface Database {
-  public: {
+  auth: {
+    Tables: {
+      users: {
+        Row: {
+          id: string
+          email: string
+          family_group_id?: string
+        }
+        Insert: {
+          id: string
+          email: string
+          family_group_id?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          family_group_id?: string
+        }
+      }
+    }
+  }
+  public:{
     Tables: {
       family_groups: {
         Row: {
