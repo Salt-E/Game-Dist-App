@@ -1,11 +1,17 @@
 // app/api/games/[id]/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
+interface RouteContext {
+  params: {
+    id: string;
+  };
+}
+
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -34,7 +40,7 @@ export async function GET(
         created_at,
         game_purchases(owner_id)
       `)
-      .eq('id', params.id)
+      .eq('id', context.params.id)
       .single();
 
     if (gameError) {
@@ -80,7 +86,7 @@ export async function GET(
           const { data: familyOwnership } = await supabase
             .from('game_purchases')
             .select('owner_id')
-            .eq('game_id', params.id)
+            .eq('game_id', context.params.id)
             .in('owner_id', familyUserIds)
             .single();
           
@@ -106,10 +112,9 @@ export async function GET(
   }
 }
 
-// Handle updates to game details (if needed)
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -129,7 +134,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from('games')
       .update(body)
-      .eq('id', params.id)
+      .eq('id', context.params.id)
       .select()
       .single();
 
@@ -145,10 +150,9 @@ export async function PATCH(
   }
 }
 
-// Handle game deletion (if needed)
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -166,7 +170,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('games')
       .delete()
-      .eq('id', params.id);
+      .eq('id', context.params.id);
 
     if (error) throw error;
 
