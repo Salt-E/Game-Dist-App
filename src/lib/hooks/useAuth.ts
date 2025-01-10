@@ -17,19 +17,19 @@ export function useAuth() {
       try {
         // First check session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
+    
         if (sessionError) throw sessionError;
-
+    
         if (session?.user) {
-          // Get full user data if we have a session
+          // Get full user data if we have a session (access from auth.users)
           const { data: userData, error: userError } = await supabase
-            .from('users')  // Changed from auth.users to users
+            .from('auth.users') // Keep this line for Supabase Auth schema
             .select('*')
             .eq('id', session.user.id)
             .single();
-
+    
           if (userError) throw userError;
-          
+    
           setUser(userData);
         }
       } catch (err) {
