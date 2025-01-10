@@ -7,6 +7,8 @@ export async function POST(request: Request) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
     const { name, userId } = await request.json();
+    console.log("name:", name)
+    console.log("userId:", userId)
     
     if (!name || !userId) {
       return NextResponse.json(
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
     // Start transaction
     const { data: familyGroup, error: familyError } = await supabase
       .from('family_groups')
-      .insert({ name, owner_id: userId })
+      .insert({ name: name, owner_id: userId })
       .select()
       .single();
     

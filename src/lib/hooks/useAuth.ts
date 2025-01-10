@@ -17,20 +17,18 @@ export function useAuth() {
       try {
         // First check session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
+    
         if (sessionError) throw sessionError;
-
+    
         if (session?.user) {
-          // Get full user data if we have a session
-          const { data: userData, error: userError } = await supabase
-            .from('users')  // Changed from auth.users to users
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-
+          // Get full user data if we have a session (access from auth.users)
+          const { data: userData, error: userError } = await supabase.auth.getUser()
+    
           if (userError) throw userError;
-          
-          setUser(userData);
+          if (userData?.user?.id) {
+            console.log("User ID fetched:", userData.user.id);
+            setUser(userData.user ); // Pastikan ini hanya meng-assign `user`, bukan seluruh `userData`
+          } // Type assertion added here
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
@@ -53,7 +51,7 @@ export function useAuth() {
 
             if (userError) throw userError;
             
-            setUser(userData);
+            setUser(userData as User); // Type assertion added here
             setLoading(false);
           } catch (err) {
             console.error('Error fetching user data:', err);
