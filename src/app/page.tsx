@@ -1,10 +1,17 @@
-'use client';
-
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import Script from 'next/script';
 
 export default function Home() {
+  useEffect(() => {
+    // Declare global MUSICMATE_API_KEY
+    if (typeof window !== 'undefined') {
+      window.MUSICMATE_API_KEY = 'mk_kkxs08U_AxEsdKZjvbt0y5BGVvojBJLKfJf9h1IVh3c';
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#1b2838]">
+    <div className="min-h-screen bg-[#1b2838] relative">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-20">
           <div className="text-center">
@@ -29,7 +36,21 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Spotify Widget Container */}
+        <div className="mt-12 flex justify-center">
+          <div id="spotify-widget" className="w-full max-w-2xl bg-black rounded-lg overflow-hidden">
+            {/* Widget will be injected here */}
+          </div>
+        </div>
       </main>
+
+      {/* Scripts */}
+      <Script
+        id="spotify-widget-loader"
+        src="https://spotify-bot.azurewebsites.net/static/js/widget-loader.js"
+        strategy="afterInteractive"
+      />
     </div>
   );
 }
