@@ -5,8 +5,10 @@ import { Database } from '@/lib/database.types'
 export default function AuthPage() {
   const supabase = createClientComponentClient<Database>() 
   const getRedirectUrl = () => {
-    console.log("origin:", window.location.origin);
-    return `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    const redirectUrl = `${baseUrl}/auth/callback`;
+    console.log("Redirect URL:", redirectUrl);
+    return redirectUrl;
   };
 
   const signInWithGoogle = async () => {
