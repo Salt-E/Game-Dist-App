@@ -1,6 +1,7 @@
 # FamGames - Game Distribution Platform
 
 A Next.js-based game distribution platform that enables family sharing features, built with Supabase for authentication and data storage.
+made by Alvin Fadhilah Akmal-18222079, for documentation with images can refer to [documentation](./docs)
 
 ## Table of Contents
 - [Features](#features)
@@ -11,6 +12,9 @@ A Next.js-based game distribution platform that enables family sharing features,
 - [Database Schema](#database-schema)
 - [Authentication](#authentication)
 - [Family Sharing System](#family-sharing-system)
+- [Containerization](#containerization)
+- [Deployment](#deployment)
+- [Service Integration](#service-integration)
 
 ## Features
 
@@ -261,12 +265,7 @@ Implementation details:
 
 ### Implementation Details
 
-1. **Row Level Security (RLS)**
-   - Family group access controlled by RLS policies
-   - Members can only view their own group's data
-   - Owners have full CRUD permissions
-
-2. **Real-time Updates**
+1. **Real-time Updates**
    - Family member changes reflect immediately
    - Game library updates in real-time
    - Purchase status synchronization
@@ -346,3 +345,25 @@ The application implements comprehensive error handling:
 4. Push to the branch
 5. Create a Pull Request
 
+## Containerization
+This project is deployed to railway app, hence a containerization is needed. For the containerization, Docker is used as seen in the Dockerfile and docker-compose directory.
+The Dockerfile is used to build a Docker image for the Next.js application, starting with installing dependencies, building the application, and preparing a production-ready image. Meanwhile, the docker-compose.yaml file is used to run the application container based on the built image, with additional configurations such as port mapping, volumes, and environment variables (including the Supabase URL and key). Together, they enable this Game Distribution App to run in an isolated, efficient container that is easy to deploy across different environments.
+
+## Deployment
+Deployment is done in two domains:
+- [Vercel Deployment](https://game-dist-app.vercel.app)  
+- [Railway Deployment](https://game-dist-app-production.up.railway.app)
+Deploying the application on both Vercel and Railway provides flexibility and redundancy. Vercel is optimized for hosting Next.js applications, offering seamless integration, automatic builds, and a globally distributed edge network for fast performance. Railway, on the other hand, is ideal for hosting the backend API or services requiring server-side execution, as it supports full control over Dockerized applications and provides scalability for diverse workloads. Using both ensures the application benefits from Vercel's front-end optimizations and Railway's robust backend hosting capabilities, while also offering a backup in case one service faces downtime.
+
+## Service Integration
+1. **Request Access**  
+   Obtain permission from the third-party chatbot service by sharing the app’s link or API key.
+
+2. **Embed the Chatbot Script**  
+   Include the following snippet in the app to load the chatbot service:
+
+   ```javascript
+   window.MUSICMATE_API_KEY = "your_api_key_here";
+
+   <script src="https://spotify-bot.azurewebsites.net/static/js/widget-loader.js"></script>
+The service integration I used is from a friend's service which is a chatbot, I integrated it to the app page so that it has chatbot embedded to it.
