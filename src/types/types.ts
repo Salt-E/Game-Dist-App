@@ -1,7 +1,7 @@
 // types.ts
 export interface User {
     id: string;
-    email: string;
+    email?: string;
     family_group_id?: string;
   }
   

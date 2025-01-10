@@ -22,6 +22,7 @@ export const familyService = {
     userId: string
   ): Promise<CreateFamilyGroupResponse> {
     try {
+      console.log("Request payload:", { name, userId });
       const response = await fetch('/api/family', {
         method: 'POST',
         headers: {
