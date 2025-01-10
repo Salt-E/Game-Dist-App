@@ -72,22 +72,3 @@ function AuthContent() {
   );
 }
 
-// Loading component for Suspense fallback
-function AuthLoading() {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-  );
-}
-
-// Main page component
-export default function AuthPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <Suspense fallback={<AuthLoading />}>
-        <AuthContent />
-      </Suspense>
-    </div>
-  );
-}
