@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuthContext } from '@/components/AuthProvider';
 import { useFamilyGroup } from '@/lib/hooks/useFamilyGroups';
 import { familyService } from '@/services/familyService';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 
 export default function FamilyPage() {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { familyGroup, members, loading, error, refreshMembers } = useFamilyGroup(user?.id);
   const [inviteEmail, setInviteEmail] = useState('');
   const [isInviting, setIsInviting] = useState(false);
@@ -213,19 +213,6 @@ export default function FamilyPage() {
             </Card>
           )}
         </div>
-
-        {/* Sharing Settings */}
-        <Card className="bg-card border-border mt-8">
-          <CardHeader>
-            <CardTitle>Sharing Settings</CardTitle>
-            <CardDescription>Configure how your games are shared with family members</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Add sharing settings controls here */}
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

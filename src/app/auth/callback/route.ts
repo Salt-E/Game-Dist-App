@@ -13,8 +13,6 @@ export async function GET(request: NextRequest) {
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
     await supabase.auth.exchangeCodeForSession(code);
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
-
-  // URL untuk redirect setelah autentikasi berhasil
-  return NextResponse.redirect(new URL('/dashboard', request.url));
 }

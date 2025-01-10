@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, Library, Users, User, LogOut } from "lucide-react";
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuthContext } from '@/components/AuthProvider';
 import { Button } from "./ui/button";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthContext();
 
   const navLinks = [
     { href: '/store', label: 'Store', Icon: ShoppingCart },
