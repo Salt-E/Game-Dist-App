@@ -39,6 +39,14 @@ export default function Home() {
         </div>
 
         {/* Spotify Widget Container */}
+        <style jsx>{`
+          #spotify-widget {
+            color: black !important;
+          }
+          #spotify-widget * {
+            color: black !important;
+          }
+        `}</style>
         <div className="mt-12 flex justify-center">
           <div id="spotify-widget" className="w-full max-w-2xl bg-black rounded-lg overflow-hidden">
             {/* Widget will be injected here */}
