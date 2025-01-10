@@ -3,15 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
-interface RouteContext {
-  params: {
-    id: string;
-  };
-}
-
 export async function GET(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { id: string } }
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -40,7 +34,7 @@ export async function GET(
         created_at,
         game_purchases(owner_id)
       `)
-      .eq('id', context.params.id)
+      .eq('id', params.id)
       .single();
 
     if (gameError) {
@@ -86,7 +80,7 @@ export async function GET(
           const { data: familyOwnership } = await supabase
             .from('game_purchases')
             .select('owner_id')
-            .eq('game_id', context.params.id)
+            .eq('game_id', params.id)
             .in('owner_id', familyUserIds)
             .single();
           
@@ -114,7 +108,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { id: string } }
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -134,7 +128,7 @@ export async function PATCH(
     const { data, error } = await supabase
       .from('games')
       .update(body)
-      .eq('id', context.params.id)
+      .eq('id', params.id)
       .select()
       .single();
 
@@ -152,7 +146,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { id: string } }
 ) {
   try {
     const supabase = createRouteHandlerClient({ cookies });
@@ -170,7 +164,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('games')
       .delete()
-      .eq('id', context.params.id);
+      .eq('id', params.id);
 
     if (error) throw error;
 
