@@ -3,7 +3,7 @@ import { SupabaseClient as SupabaseClientType } from '@supabase/supabase-js'
 import { Database } from '@/lib/database.types'
 
 // Definisikan type aliases untuk Row types
-export type DbUser = Database['public']['Tables']['users']['Row']
+
 export type DbGame = Database['public']['Tables']['games']['Row']
 export type DbFamilyGroup = Database['public']['Tables']['family_groups']['Row']
 export type DbFamilyMember = Database['public']['Tables']['family_members']['Row']
@@ -13,13 +13,6 @@ declare global {
   type SupabaseClient = SupabaseClientType<Database>
 }
 
-// Definisikan interface
-export interface User {
-  id: string
-  email: string
-  family_group_id?: string
-  created_at: string
-}
 
 export interface Game {
   id: number
